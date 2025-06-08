@@ -5,7 +5,7 @@ namespace TaskManager.Domain.Interfaces
     public interface IUnitOfWork
     {
         IRepository<User> Users { get; }
-        IRepository<Project> Projects { get; }
+        IProjectRepository Projects { get; }
         IRepository<TaskItem> Tasks { get; }
         IRepository<Comment> Comments { get; }
         IRepository<TaskHistory> TaskHistories { get; }

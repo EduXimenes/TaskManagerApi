@@ -16,7 +16,7 @@ namespace TaskManager.Application.Services
 
         public async Task<Guid> CreateTaskAsync(Guid projectId, string title, string description, DateTime dueDate, TaskPriority priority)
         {
-            var project = await _unitOfWork.Projects.GetByIdAsync(projectId)
+            var project = await _unitOfWork.Projects.GetByIdWithTasksAsync(projectId)
                 ?? throw new Exception("Projeto não encontrado");
 
             if (project.Tasks.Count >= 20)
@@ -35,14 +35,15 @@ namespace TaskManager.Application.Services
 
             return task.Id;
         }
+
         public async Task UpdateTaskAsync(
-               Guid taskId,
-               string? newTitle,
-               string? newDescription,
-               DateTime? newDueDate,
-               TaskStatus? newStatus,
-               Guid userId)
-            {
+            Guid taskId,
+            string? newTitle,
+            string? newDescription,
+            DateTime? newDueDate,
+            TaskStatus? newStatus,
+            Guid userId)
+        {
             var task = await _unitOfWork.Tasks.GetByIdAsync(taskId)
                 ?? throw new Exception("Tarefa não encontrada");
 
@@ -102,6 +103,5 @@ namespace TaskManager.Application.Services
             await _unitOfWork.Tasks.DeleteAsync(task.Id);
             await _unitOfWork.CommitAsync();
         }
-
     }
 }
