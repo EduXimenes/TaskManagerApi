@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TaskManager.Application.InputModels;
+using TaskManager.Domain.InputModels;
 
 namespace TaskManager.Application.Validators
 {

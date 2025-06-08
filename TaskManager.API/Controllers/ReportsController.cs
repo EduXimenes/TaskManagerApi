@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Application.ViewModels;
-using TaskManager.Domain.Enums;
+using TaskManager.Application.Services;
+using TaskManager.Domain.Interfaces.Services;
+using TaskManager.Domain.ViewModels;
 using TaskManager.Infrastructure.Persistence;
-using TaskStatus = TaskManager.Domain.Enums.TaskStatus;
+using TaskStatusEnum = TaskManager.Domain.Enums.TaskStatusEnum;
 
 namespace TaskManager.API.Controllers;
 
@@ -13,10 +14,12 @@ namespace TaskManager.API.Controllers;
 public class ReportsController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IReportService _reportService;
 
-    public ReportsController(AppDbContext context)
+    public ReportsController(AppDbContext context, IReportService reportService)
     {
         _context = context;
+        _reportService = reportService;
     }
 
     [HttpGet("performance")]
@@ -26,7 +29,7 @@ public class ReportsController : ControllerBase
         var sinceDate = DateTime.UtcNow.AddDays(-30);
 
         var userTaskGroups = await _context.Tasks
-            .Where(t => t.Status == TaskStatus.Completed && t.DueDate >= sinceDate)
+            .Where(t => t.Status == TaskStatusEnum.Completed && t.DueDate >= sinceDate)
             .GroupBy(t => t.UserId)
             .Select(g => new
             {
@@ -52,5 +55,19 @@ public class ReportsController : ControllerBase
         }).ToList();
 
         return Ok(reports);
+    }
+
+    [HttpGet("completed-tasks")]
+    public async Task<ActionResult<IEnumerable<TaskViewModel>>> GetCompletedTasksByUser([FromQuery] DateTime sinceDate)
+    {
+        var tasks = await _reportService.GetCompletedTasksByUserAsync(sinceDate);
+        return Ok(tasks);
+    }
+
+    [HttpGet("users-with-completed-tasks")]
+    public async Task<ActionResult<IEnumerable<UserViewModel>>> GetUsersWithCompletedTasks([FromQuery] Guid[] userIds)
+    {
+        var users = await _reportService.GetUsersWithCompletedTasksAsync(userIds);
+        return Ok(users);
     }
 }

@@ -1,107 +1,91 @@
-﻿using TaskManager.Domain.Entities;
-using TaskManager.Domain.Enums;
-using TaskManager.Domain.Interfaces;
-using TaskStatus = TaskManager.Domain.Enums.TaskStatus;
+﻿using AutoMapper;
+using TaskManager.Domain.InputModels;
+using TaskManager.Domain.ViewModels;
+using TaskManager.Domain.Entities;
+using TaskManager.Domain.Interfaces.Common;
+using TaskManager.Domain.Interfaces.Services;
 
 namespace TaskManager.Application.Services
 {
     public class TaskService : ITaskService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public TaskService(IUnitOfWork unitOfWork)
+        public TaskService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<Guid> CreateTaskAsync(Guid projectId, string title, string description, DateTime dueDate, TaskPriority priority)
+        public async Task<IEnumerable<TaskViewModel>> GetAllAsync()
         {
-            var project = await _unitOfWork.Projects.GetByIdWithTasksAsync(projectId)
-                ?? throw new Exception("Projeto não encontrado");
+            var tasks = await _unitOfWork.Tasks.GetAllWithDetailsAsync();
+            return _mapper.Map<IEnumerable<TaskViewModel>>(tasks);
+        }
 
-            if (project.Tasks.Count >= 20)
-                throw new Exception("Limite de tarefas excedido para este projeto.");
+        public async Task<TaskViewModel?> GetByIdAsync(Guid id)
+        {
+            var task = await _unitOfWork.Tasks.GetByIdWithDetailsAsync(id);
+            return task == null ? null : _mapper.Map<TaskViewModel>(task);
+        }
 
-            var task = new TaskItem(priority)
-            {
-                Title = title,
-                Description = description,
-                DueDate = dueDate,
-                ProjectId = projectId
-            };
+        public async Task<TaskViewModel> CreateAsync(CreateTaskInputModel inputModel)
+        {
+            var taskCount = await _unitOfWork.Tasks.CountByProjectIdAsync(inputModel.ProjectId);
+            if (taskCount >= 20)
+                throw new InvalidOperationException("Limite de 20 tarefas por projeto atingido.");
 
+            var task = _mapper.Map<TaskItem>(inputModel);
             await _unitOfWork.Tasks.AddAsync(task);
             await _unitOfWork.CommitAsync();
 
-            return task.Id;
+            var createdTask = await _unitOfWork.Tasks.GetByIdWithDetailsAsync(task.Id);
+            return _mapper.Map<TaskViewModel>(createdTask);
         }
 
-        public async Task UpdateTaskAsync(
-            Guid taskId,
-            string? newTitle,
-            string? newDescription,
-            DateTime? newDueDate,
-            TaskStatus? newStatus,
-            Guid userId)
+        public async Task UpdateAsync(Guid id, UpdateTaskInputModel inputModel)
         {
-            var task = await _unitOfWork.Tasks.GetByIdAsync(taskId)
-                ?? throw new Exception("Tarefa não encontrada");
+            var task = await _unitOfWork.Tasks.GetByIdAsync(id);
+            if (task == null)
+                throw new KeyNotFoundException($"Tarefa com id {id} não encontrada.");
 
-            var changes = new List<string>();
+            _mapper.Map(inputModel, task);
 
-            if (!string.IsNullOrWhiteSpace(newTitle) && newTitle != task.Title)
-            {
-                task.Title = newTitle;
-                changes.Add("Título atualizado");
-            }
-
-            if (!string.IsNullOrWhiteSpace(newDescription) && newDescription != task.Description)
-            {
-                task.Description = newDescription;
-                changes.Add("Descrição atualizada");
-            }
-
-            if (newDueDate.HasValue && newDueDate.Value != task.DueDate)
-            {
-                task.DueDate = newDueDate.Value;
-                changes.Add("Data de vencimento alterada");
-            }
-
-            if (newStatus.HasValue && newStatus.Value != task.Status)
-            {
-                task.Status = newStatus.Value;
-                changes.Add("Status alterado");
-            }
-
-            if (changes.Any())
-            {
-                await _unitOfWork.TaskHistories.AddAsync(new TaskHistory
-                {
-                    TaskItemId = taskId,
-                    ChangeDate = DateTime.UtcNow,
-                    UserId = userId,
-                    Description = string.Join(". ", changes) + "."
-                });
-            }
-
-            await _unitOfWork.CommitAsync();
-        }
-
-        public async Task DeleteTaskAsync(Guid taskId, Guid userId)
-        {
-            var task = await _unitOfWork.Tasks.GetByIdAsync(taskId)
-                ?? throw new Exception("Tarefa não encontrada");
-
-            await _unitOfWork.TaskHistories.AddAsync(new TaskHistory
+            var history = new TaskHistory
             {
                 TaskItemId = task.Id,
+                UserId = inputModel.UserId,
+                Description = $"Tarefa atualizada: {task.Title}",
                 ChangeDate = DateTime.UtcNow,
-                UserId = userId,
-                Description = $"Tarefa '{task.Title}' foi removida."
-            });
+                TaskStatusEnum = inputModel.Status
+            };
 
-            await _unitOfWork.Tasks.DeleteAsync(task.Id);
+            await _unitOfWork.TasksHistories.AddAsync(history);
+            await _unitOfWork.Tasks.UpdateAsync(task);
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var task = await _unitOfWork.Tasks.GetByIdAsync(id);
+            if (task == null)
+                throw new KeyNotFoundException($"Tarefa com id {id} não encontrada.");
+
+            await _unitOfWork.Tasks.DeleteAsync(id);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<IEnumerable<TaskViewModel>> GetByProjectIdAsync(Guid projectId)
+        {
+            var tasks = await _unitOfWork.Tasks.GetByProjectIdAsync(projectId);
+            return _mapper.Map<IEnumerable<TaskViewModel>>(tasks);
+        }
+
+        public async Task<IEnumerable<TaskViewModel>> GetByUserIdAsync(Guid userId)
+        {
+            var tasks = await _unitOfWork.Tasks.GetByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<TaskViewModel>>(tasks);
         }
     }
 }

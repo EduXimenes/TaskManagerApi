@@ -1,7 +1,7 @@
 ﻿using TaskManager.Domain.Enums;
-using TaskStatus = TaskManager.Domain.Enums.TaskStatus;
+using TaskStatusEnum = TaskManager.Domain.Enums.TaskStatusEnum;
 
-namespace TaskManager.Application.ViewModels
+namespace TaskManager.Domain.ViewModels
 {
     public class TaskViewModel
     {
@@ -10,7 +10,7 @@ namespace TaskManager.Application.ViewModels
         public string Description { get; set; } = string.Empty;
         public DateTime DueDate { get; set; }
         public TaskPriority Priority { get; set; }
-        public TaskStatus Status { get; set; }
+        public TaskStatusEnum Status { get; set; }
         public Guid ProjectId { get; set; }
         public string ProjectName { get; set; } = string.Empty;
         public string? AssignedUserName { get; set; }

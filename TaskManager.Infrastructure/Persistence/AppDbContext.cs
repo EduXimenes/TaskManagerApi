@@ -89,19 +89,23 @@ namespace TaskManager.Infrastructure.Persistence
 
             modelBuilder.Entity<TaskHistory>(entity =>
             {
-                entity.HasKey(th => th.Id);
-
-                entity.Property(th => th.Description).IsRequired();
-
                 entity.HasOne(th => th.TaskItem)
-                      .WithMany(t => t.TaskHistories)
-                      .HasForeignKey(th => th.TaskItemId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(t => t.TaskHistories)
+                    .HasForeignKey(th => th.TaskItemId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(th => th.User)
-                      .WithMany(u => u.TaskHistories)
-                      .HasForeignKey(th => th.UserId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                    .WithMany()
+                    .HasForeignKey(th => th.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(th => th.Description)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(th => th.TaskStatusEnum)
+                    .HasConversion<string>()
+                    .IsRequired(false);
             });
 
             modelBuilder.Entity<Comment>(entity =>

@@ -1,6 +1,6 @@
 ﻿using TaskManager.Domain.Enums;
 
-namespace TaskManager.Application.InputModels
+namespace TaskManager.Domain.InputModels
 {
     public class CreateTaskInputModel
     {

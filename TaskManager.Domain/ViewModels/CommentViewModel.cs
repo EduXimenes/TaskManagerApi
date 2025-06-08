@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.ViewModels
+﻿namespace TaskManager.Domain.ViewModels
 {
     public class CommentViewModel
     {

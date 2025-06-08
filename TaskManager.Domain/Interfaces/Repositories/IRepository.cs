@@ -1,6 +1,6 @@
 ﻿using TaskManager.Domain.Common;
 
-namespace TaskManager.Domain.Interfaces
+namespace TaskManager.Domain.Interfaces.Repositories
 {
     public interface IRepository<T> where T : BaseEntity
     {

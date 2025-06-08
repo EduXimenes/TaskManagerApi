@@ -1,6 +1,6 @@
 ﻿using TaskManager.Domain.Common;
 using TaskManager.Domain.Enums;
-using TaskStatus = TaskManager.Domain.Enums.TaskStatus;
+using TaskStatusEnum = TaskManager.Domain.Enums.TaskStatusEnum;
 
 namespace TaskManager.Domain.Entities
 {
@@ -9,7 +9,7 @@ namespace TaskManager.Domain.Entities
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public DateTime DueDate { get; set; }
-        public TaskStatus Status { get; set; } = TaskStatus.Pending;
+        public TaskStatusEnum Status { get; set; } = TaskStatusEnum.Pending;
         public TaskPriority Priority { get; private set; }
 
         public Guid ProjectId { get; set; }

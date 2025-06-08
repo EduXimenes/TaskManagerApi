@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using TaskManager.Application.InputModels;
-using TaskManager.Application.Interfaces;
-using TaskManager.Application.ViewModels;
+using TaskManager.Domain.InputModels;
+using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
-using TaskManager.Domain.Interfaces;
+using TaskManager.Domain.Interfaces.Common;
+using TaskManager.Domain.Interfaces.Services;
 
 namespace TaskManager.Application.Services
 {
@@ -30,35 +30,32 @@ namespace TaskManager.Application.Services
             return project == null ? null : _mapper.Map<ProjectViewModel>(project);
         }
 
-        public async Task<Guid> CreateAsync(CreateProjectInputModel inputModel)
+        public async Task<ProjectViewModel> CreateAsync(CreateProjectInputModel inputModel)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(inputModel.UserId)
-                ?? throw new Exception("Usuário não encontrado");
-
             var project = _mapper.Map<Project>(inputModel);
             await _unitOfWork.Projects.AddAsync(project);
             await _unitOfWork.CommitAsync();
 
-            return project.Id;
+            var createdProject = await _unitOfWork.Projects.GetByIdWithUserAndTasksAsync(project.Id);
+            return _mapper.Map<ProjectViewModel>(createdProject);
         }
 
         public async Task UpdateAsync(Guid id, CreateProjectInputModel inputModel)
         {
-            var project = await _unitOfWork.Projects.GetByIdAsync(id)
-                ?? throw new Exception("Projeto não encontrado");
+            var project = await _unitOfWork.Projects.GetByIdAsync(id);
+            if (project == null)
+                throw new KeyNotFoundException($"Projeto com id {id} não encontrado.");
 
-            project.Name = inputModel.Name;
-
+            _mapper.Map(inputModel, project);
+            await _unitOfWork.Projects.UpdateAsync(project);
             await _unitOfWork.CommitAsync();
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var project = await _unitOfWork.Projects.GetByIdWithTaskAsync(id)
-                ?? throw new Exception("Projeto não encontrado");
-
-            if (project.Tasks.Any(t => t.Status != Domain.Enums.TaskStatus.Completed))
-                throw new Exception("Não é possível excluir um projeto com tarefas pendentes.");
+            var project = await _unitOfWork.Projects.GetByIdAsync(id);
+            if (project == null)
+                throw new KeyNotFoundException($"Projeto com id {id} não encontrado.");
 
             await _unitOfWork.Projects.DeleteAsync(id);
             await _unitOfWork.CommitAsync();

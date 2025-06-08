@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.InputModels
+﻿namespace TaskManager.Domain.InputModels
 {
     public class CreateCommentInputModel
     {

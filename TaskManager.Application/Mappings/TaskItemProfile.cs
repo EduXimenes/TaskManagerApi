@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using TaskManager.Application.InputModels;
-using TaskManager.Application.ViewModels;
+using TaskManager.Domain.InputModels;
+using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Mappings
@@ -20,6 +20,9 @@ namespace TaskManager.Application.Mappings
             CreateMap<TaskItem, TaskViewModel>()
                 .ForMember(dest => dest.ProjectName, opt => opt.MapFrom(src => src.Project.Name))
                 .ForMember(dest => dest.AssignedUserName, opt => opt.MapFrom(src => src.AssignedUser.Name));
+
+            CreateMap<TaskItem, UpdateTaskInputModel>().ReverseMap();
+
         }
     }
 }

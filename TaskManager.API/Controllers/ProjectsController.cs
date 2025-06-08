@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.InputModels;
-using TaskManager.Application.ViewModels;
-using TaskManager.Domain.Interfaces;
+using TaskManager.Domain.InputModels;
+using TaskManager.Domain.ViewModels;
+using TaskManager.Domain.Interfaces.Services;
+
+namespace TaskManager.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,34 +18,60 @@ public class ProjectsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProjectViewModel>>> GetAll()
-        => Ok(await _projectService.GetAllAsync());
+    {
+        var projects = await _projectService.GetAllAsync();
+        return Ok(projects);
+    }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ProjectViewModel>> GetById(Guid id)
     {
-        var result = await _projectService.GetByIdAsync(id);
-        return result is null ? NotFound() : Ok(result);
+        var project = await _projectService.GetByIdAsync(id);
+        if (project == null)
+            return NotFound();
+
+        return Ok(project);
     }
 
     [HttpPost]
     public async Task<ActionResult<ProjectViewModel>> Create(CreateProjectInputModel inputModel)
     {
-        var projectId = await _projectService.CreateAsync(inputModel);
-        var createdProject = await _projectService.GetByIdAsync(projectId);
-        return CreatedAtAction(nameof(GetById), new { id = projectId }, createdProject);
+        try
+        {
+            var project = await _projectService.CreateAsync(inputModel);
+            return CreatedAtAction(nameof(GetById), new { id = project.Id }, project);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, CreateProjectInputModel inputModel)
     {
-        await _projectService.UpdateAsync(id, inputModel);
-        return NoContent();
+        try
+        {
+            await _projectService.UpdateAsync(id, inputModel);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await _projectService.DeleteAsync(id);
-        return NoContent();
+        try
+        {
+            await _projectService.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 }

@@ -1,55 +1,75 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TaskManager.Application.InputModels;
-using TaskManager.Application.ViewModels;
-using TaskManager.Domain.Entities;
-using TaskManager.Infrastructure.Persistence;
+﻿using Microsoft.AspNetCore.Mvc;
+using TaskManager.Domain.InputModels;
+using TaskManager.Domain.Interfaces.Services;
+using TaskManager.Domain.ViewModels;
 
-namespace TaskManager.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class CommentsController : ControllerBase
+namespace TaskManager.API.Controllers
 {
-    private readonly AppDbContext _context;
-    private readonly IMapper _mapper;
-
-    public CommentsController(AppDbContext context, IMapper mapper)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CommentsController : ControllerBase
     {
-        _context = context;
-        _mapper = mapper;
-    }
+        private readonly ICommentService _commentService;
 
-    [HttpPost]
-    public async Task<IActionResult> CreateComment(CreateCommentInputModel model)
-    {
-        var comment = _mapper.Map<Comment>(model);
-        _context.Comments.Add(comment);
-
-        var history = new TaskHistory
+        public CommentsController(ICommentService commentService)
         {
-            TaskItemId = model.TaskItemId,
-            UserId = model.UserId,
-            Description = $"Comentário adicionado: \"{model.Content}\"",
-            ChangeDate = DateTime.UtcNow
-        };
-        _context.TaskHistories.Add(history);
+            _commentService = commentService;
+        }
 
-        await _context.SaveChangesAsync();
+        [HttpGet("task/{taskId}")]
+        public async Task<ActionResult<IEnumerable<CommentViewModel>>> GetByTaskId(Guid taskId)
+        {
+            var comments = await _commentService.GetByIdAsync(taskId);
+            return Ok(comments);
+        }
 
-        var result = _mapper.Map<CommentViewModel>(comment);
-        return Ok(result);
-    }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CommentViewModel>> GetById(Guid id)
+        {
+            try
+            {
+                var comment = await _commentService.GetByIdAsync(id);
+                return Ok(comment);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
 
-    [HttpGet("task/{taskId}")]
-    public async Task<IActionResult> GetCommentsByTask(Guid taskId)
-    {
-        var comments = await _context.Comments
-            .Where(c => c.TaskItemId == taskId)
-            .ToListAsync();
+        [HttpPost]
+        public async Task<ActionResult<CommentViewModel>> Create(CreateCommentInputModel inputModel)
+        {
+            var comment = await _commentService.CreateAsync(inputModel);
+            return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
+        }
 
-        var result = _mapper.Map<List<CommentViewModel>>(comments);
-        return Ok(result);
+        [HttpPut("{id}")]
+        public async Task<ActionResult<CommentViewModel>> Update(Guid id, CreateCommentInputModel inputModel)
+        {
+            try
+            {
+                await _commentService.UpdateAsync(id, inputModel);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                await _commentService.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
     }
 }

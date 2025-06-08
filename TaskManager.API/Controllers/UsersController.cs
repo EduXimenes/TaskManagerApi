@@ -1,84 +1,77 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.InputModels;
-using TaskManager.Application.ViewModels;
-using TaskManager.Domain.Entities;
-using TaskManager.Infrastructure.Persistence;
+﻿using Microsoft.AspNetCore.Mvc;
+using TaskManager.Domain.InputModels;
+using TaskManager.Domain.ViewModels;
+using TaskManager.Domain.Interfaces.Services;
 
-namespace TaskManager.API.Controllers
+namespace TaskManager.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    private readonly IUserService _userService;
+
+    public UsersController(IUserService userService)
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        _userService = userService;
+    }
 
-        public UsersController(AppDbContext context, IMapper mapper)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserViewModel>>> GetAll()
+    {
+        var users = await _userService.GetAllAsync();
+        return Ok(users);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserViewModel>> GetById(Guid id)
+    {
+        var user = await _userService.GetByIdAsync(id);
+        if (user == null)
+            return NotFound();
+
+        return Ok(user);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<UserViewModel>> Create(CreateUserInputModel inputModel)
+    {
+        try
         {
-            _context = context;
-            _mapper = mapper;
+            var user = await _userService.CreateAsync(inputModel);
+            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
         }
-
-        [HttpGet]
-        public ActionResult<IEnumerable<UserViewModel>> GetAll()
+        catch (KeyNotFoundException ex)
         {
-            var viewModel = _context.Users.ToList();
-            return Ok(_mapper.Map<IEnumerable<UserViewModel>>(viewModel));
+            return NotFound(ex.Message);
         }
+    }
 
-        [HttpGet("{id}")]
-        public ActionResult<UserViewModel> GetById(Guid id)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, CreateUserInputModel inputModel)
+    {
+        try
         {
-            var viewModel = _context.Users.Find(id);
-            if (viewModel == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(_mapper.Map<UserViewModel>(viewModel));
-        }
-
-        [HttpPost]
-        public ActionResult<UserViewModel> Create(CreateUserInputModel inputModel)
-        {
-            var user = _mapper.Map<User>(inputModel);
-            _context.Users.Add(user);
-            _context.SaveChanges();
-
-            var viewModel = _mapper.Map<UserViewModel>(user);
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, viewModel);
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Update(Guid id, CreateUserInputModel inputModel)
-        {
-            var existing = _context.Users.Find(id);
-            if (existing == null)
-            {
-                return NotFound();
-            }
-
-            existing.Name = inputModel.Name;
-            existing.Email = inputModel.Email;
-            existing.Role = inputModel.Role;
-
-            _context.SaveChanges();
+            await _userService.UpdateAsync(id, inputModel);
             return NoContent();
         }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(Guid id)
+        catch (KeyNotFoundException ex)
         {
-            var user = _context.Users.Find(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            return NotFound(ex.Message);
+        }
+    }
 
-            _context.Users.Remove(user);
-            _context.SaveChanges();
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        try
+        {
+            await _userService.DeleteAsync(id);
             return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
         }
     }
 }

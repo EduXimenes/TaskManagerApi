@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskManager.Domain.Common;
-using TaskManager.Domain.Interfaces;
+using TaskManager.Domain.Interfaces.Repositories;
 using TaskManager.Infrastructure.Persistence;
 
 namespace TaskManager.Infrastructure.Repositories

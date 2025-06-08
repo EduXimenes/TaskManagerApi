@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using TaskManager.Application.InputModels;
-using TaskManager.Application.ViewModels;
+using TaskManager.Domain.InputModels;
+using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Mappings

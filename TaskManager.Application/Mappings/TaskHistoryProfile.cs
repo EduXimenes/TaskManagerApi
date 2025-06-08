@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using TaskManager.Application.ViewModels;
+using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Mappings
