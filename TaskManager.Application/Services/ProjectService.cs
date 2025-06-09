@@ -4,6 +4,7 @@ using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Interfaces.Common;
 using TaskManager.Domain.Interfaces.Services;
+using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Services
 {
@@ -56,6 +57,12 @@ namespace TaskManager.Application.Services
             var project = await _unitOfWork.Projects.GetByIdAsync(id);
             if (project == null)
                 throw new KeyNotFoundException($"Projeto com id {id} não encontrado.");
+
+            var hasIncompleteTasks = await _unitOfWork.Tasks.AnyAsync(
+                t => t.ProjectId == id && t.Status != TaskStatusEnum.Completed);
+
+            if (hasIncompleteTasks)
+                throw new InvalidOperationException("Não é possível excluir o projeto com tarefas pendentes ou em andamento.");
 
             await _unitOfWork.Projects.DeleteAsync(id);
             await _unitOfWork.CommitAsync();

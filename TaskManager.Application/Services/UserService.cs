@@ -4,6 +4,7 @@ using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Interfaces.Common;
 using TaskManager.Domain.Interfaces.Services;
+using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Services
 {
@@ -59,6 +60,12 @@ namespace TaskManager.Application.Services
 
             await _unitOfWork.Users.DeleteAsync(id);
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<bool> IsManagerAsync(Guid userId)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            return user != null && user.Role == UserRole.Manager;
         }
     }
 } 

@@ -9,6 +9,7 @@ namespace TaskManager.Domain.ViewModels
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public DateTime DueDate { get; set; }
+        public DateTime CompletedAt { get; set; }
         public TaskPriority Priority { get; set; }
         public TaskStatusEnum Status { get; set; }
         public Guid ProjectId { get; set; }

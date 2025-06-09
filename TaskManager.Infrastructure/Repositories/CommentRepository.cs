@@ -23,7 +23,7 @@ namespace TaskManager.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Comment> GetByIdWithDetailsAsync(Guid id)
+        public async Task<Comment?> GetByIdWithDetailsAsync(Guid id)
         {
             return await _context.Comments
                 .Include(c => c.User)

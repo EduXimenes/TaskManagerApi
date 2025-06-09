@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 
 namespace TaskManager.Domain.Interfaces.Repositories
@@ -9,5 +10,6 @@ namespace TaskManager.Domain.Interfaces.Repositories
         Task<IEnumerable<TaskItem>> GetByProjectIdAsync(Guid projectId);
         Task<IEnumerable<TaskItem>> GetByUserIdAsync(Guid userId);
         Task<int> CountByProjectIdAsync(Guid projectId);
+        Task<bool> AnyAsync(Expression<Func<TaskItem, bool>> predicate);
     }
 }

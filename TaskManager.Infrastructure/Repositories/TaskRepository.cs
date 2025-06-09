@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Interfaces.Repositories;
 using TaskManager.Infrastructure.Persistence;
@@ -53,6 +54,10 @@ namespace TaskManager.Infrastructure.Repositories
         public async Task<int> CountByProjectIdAsync(Guid projectId)
         {
             return await _context.Tasks.CountAsync(t => t.ProjectId == projectId);
+        }
+        public async Task<bool> AnyAsync(Expression<Func<TaskItem, bool>> taskStatus)
+        {
+            return await _context.Tasks.AnyAsync(taskStatus);
         }
     }
 } 

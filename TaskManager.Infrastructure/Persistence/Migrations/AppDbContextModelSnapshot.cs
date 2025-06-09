@@ -95,10 +95,14 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<Guid>("TaskItemId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("TaskStatusEnum")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -106,11 +110,16 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TaskItemId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("TaskHistories");
                 });
@@ -120,6 +129,9 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -233,10 +245,14 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("TaskManager.Domain.Entities.User", "User")
-                        .WithMany("TaskHistories")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("TaskManager.Domain.Entities.User", null)
+                        .WithMany("TaskHistories")
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("TaskItem");
 

@@ -19,7 +19,7 @@ namespace TaskManager.API.Controllers
         [HttpGet("task/{taskId}")]
         public async Task<ActionResult<IEnumerable<CommentViewModel>>> GetByTaskId(Guid taskId)
         {
-            var comments = await _commentService.GetByIdAsync(taskId);
+            var comments = await _commentService.GetByTaskIdAsync(taskId);
             return Ok(comments);
         }
 

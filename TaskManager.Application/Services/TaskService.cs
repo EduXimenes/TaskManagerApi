@@ -4,6 +4,7 @@ using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Interfaces.Common;
 using TaskManager.Domain.Interfaces.Services;
+using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Services
 {
@@ -50,19 +51,30 @@ namespace TaskManager.Application.Services
             if (task == null)
                 throw new KeyNotFoundException($"Tarefa com id {id} não encontrada.");
 
+            var oldStatus = task.Status;
             _mapper.Map(inputModel, task);
+
+            if (oldStatus != TaskStatusEnum.Completed && task.Status == TaskStatusEnum.Completed)
+            {
+                task.CompletedAt = DateTime.UtcNow;
+            }
+            else if (oldStatus == TaskStatusEnum.Completed && task.Status != TaskStatusEnum.Completed)
+            {
+                task.CompletedAt = null;
+            }
+
+            await _unitOfWork.Tasks.UpdateAsync(task);
 
             var history = new TaskHistory
             {
                 TaskItemId = task.Id,
-                UserId = inputModel.UserId,
-                Description = $"Tarefa atualizada: {task.Title}",
-                ChangeDate = DateTime.UtcNow,
-                TaskStatusEnum = inputModel.Status
+                UserId = task.UserId,
+                Description = $"Status alterado de {oldStatus} para {task.Status}",
+                TaskStatusEnum = task.Status,
+                ChangeDate = DateTime.UtcNow
             };
 
             await _unitOfWork.TasksHistories.AddAsync(history);
-            await _unitOfWork.Tasks.UpdateAsync(task);
             await _unitOfWork.CommitAsync();
         }
 

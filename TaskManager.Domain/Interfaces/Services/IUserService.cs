@@ -10,5 +10,6 @@ namespace TaskManager.Domain.Interfaces.Services
         Task<UserViewModel> CreateAsync(CreateUserInputModel inputModel);
         Task UpdateAsync(Guid id, CreateUserInputModel inputModel);
         Task DeleteAsync(Guid id);
+        Task<bool> IsManagerAsync(Guid userId);
     }
 }

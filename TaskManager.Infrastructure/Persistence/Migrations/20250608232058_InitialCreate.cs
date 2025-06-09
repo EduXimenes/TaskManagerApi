@@ -57,6 +57,7 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     DueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Priority = table.Column<int>(type: "integer", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -113,10 +114,12 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    ChangeDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TaskItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    TaskStatusEnum = table.Column<string>(type: "text", nullable: true),
+                    ChangeDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId1 = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -135,6 +138,11 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TaskHistories_Users_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -161,6 +169,11 @@ namespace TaskManager.Infrastructure.Persistence.Migrations
                 name: "IX_TaskHistories_UserId",
                 table: "TaskHistories",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskHistories_UserId1",
+                table: "TaskHistories",
+                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tasks_ProjectId",

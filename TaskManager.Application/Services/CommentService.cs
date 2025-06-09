@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Entities;
-using TaskManager.Domain.InputModels;
 using TaskManager.Domain.Interfaces.Common;
 using TaskManager.Domain.Interfaces.Services;
-using TaskManager.Domain.ViewModels;
+using TaskManager.Domain.InputModels;
 
 namespace TaskManager.Application.Services
 {
@@ -24,38 +24,45 @@ namespace TaskManager.Application.Services
             return _mapper.Map<IEnumerable<CommentViewModel>>(comments);
         }
 
-        public async Task<CommentViewModel?> GetByIdAsync(Guid id)
+        public async Task<CommentViewModel> GetByIdAsync(Guid id)
         {
             var comment = await _unitOfWork.Comments.GetByIdWithDetailsAsync(id);
-            return comment == null ? null : _mapper.Map<CommentViewModel>(comment);
+            if (comment == null)
+                throw new KeyNotFoundException($"Comment with ID {id} not found.");
+
+            return _mapper.Map<CommentViewModel>(comment);
         }
 
         public async Task<CommentViewModel> CreateAsync(CreateCommentInputModel inputModel)
         {
             var comment = _mapper.Map<Comment>(inputModel);
+
             await _unitOfWork.Comments.AddAsync(comment);
             await _unitOfWork.CommitAsync();
 
-            var createdComment = await _unitOfWork.Comments.GetByIdWithDetailsAsync(comment.Id);
-            return _mapper.Map<CommentViewModel>(createdComment);
+            return await GetByIdAsync(comment.Id);
         }
 
-        public async Task UpdateAsync(Guid id, CreateCommentInputModel inputModel)
+        public async Task<CommentViewModel> UpdateAsync(Guid id, CreateCommentInputModel inputModel)
         {
             var comment = await _unitOfWork.Comments.GetByIdAsync(id);
             if (comment == null)
-                throw new KeyNotFoundException($"Comentário com id {id} não encontrado.");
+                throw new KeyNotFoundException($"Comment with ID {id} not found.");
 
             _mapper.Map(inputModel, comment);
+            comment.UpdatedAt = DateTime.UtcNow;
+
             await _unitOfWork.Comments.UpdateAsync(comment);
             await _unitOfWork.CommitAsync();
+
+            return await GetByIdAsync(comment.Id);
         }
 
         public async Task DeleteAsync(Guid id)
         {
             var comment = await _unitOfWork.Comments.GetByIdAsync(id);
             if (comment == null)
-                throw new KeyNotFoundException($"Comentário com id {id} não encontrado.");
+                throw new KeyNotFoundException($"Comment with ID {id} not found.");
 
             await _unitOfWork.Comments.DeleteAsync(id);
             await _unitOfWork.CommitAsync();

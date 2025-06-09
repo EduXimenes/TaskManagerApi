@@ -11,7 +11,6 @@ namespace TaskManager.Application.Mappings
         {
             CreateMap<CreateUserInputModel, User>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.Role, opt => opt.Ignore())
                 .ForMember(dest => dest.Projects, opt => opt.Ignore())
                 .ForMember(dest => dest.Tasks, opt => opt.Ignore())
                 .ForMember(dest => dest.Comments, opt => opt.Ignore())

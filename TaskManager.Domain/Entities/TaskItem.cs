@@ -10,6 +10,7 @@ namespace TaskManager.Domain.Entities
         public string Description { get; set; } = string.Empty;
         public DateTime DueDate { get; set; }
         public TaskStatusEnum Status { get; set; } = TaskStatusEnum.Pending;
+        public DateTime? CompletedAt { get; set; }
         public TaskPriority Priority { get; private set; }
 
         public Guid ProjectId { get; set; }
