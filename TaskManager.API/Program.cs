@@ -7,7 +7,6 @@ using TaskManager.Domain.Interfaces.Services;
 using TaskManager.Infrastructure.Common;
 using TaskManager.Infrastructure.Persistence;
 using TaskManager.Infrastructure.Repositories;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

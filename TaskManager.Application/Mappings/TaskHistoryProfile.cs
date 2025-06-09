@@ -9,7 +9,7 @@ namespace TaskManager.Application.Mappings
         public TaskHistoryProfile()
         {
             CreateMap<TaskHistory, TaskHistoryViewModel>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name));
+                .ForMember(dest => dest.ModifiedByUserName, opt => opt.MapFrom(src => src.User.Name));
         }
     }
 }

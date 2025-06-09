@@ -22,6 +22,7 @@ namespace TaskManager.Infrastructure.Repositories
                 .Include(t => t.AssignedUser)
                 .Include(t => t.Comments)
                 .Include(t => t.TaskHistories)
+                    .ThenInclude(h => h.User)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

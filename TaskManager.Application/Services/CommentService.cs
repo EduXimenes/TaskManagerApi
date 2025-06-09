@@ -35,7 +35,17 @@ namespace TaskManager.Application.Services
 
         public async Task<CommentViewModel> CreateAsync(CreateCommentInputModel inputModel)
         {
+            var task = await _unitOfWork.Tasks.GetByIdAsync(inputModel.TaskItemId);
+            if (task == null)
+                throw new KeyNotFoundException($"Task with ID {inputModel.TaskItemId} not found.");
+
+            var user = await _unitOfWork.Users.GetByIdAsync(inputModel.UserId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {inputModel.UserId} not found.");
+
             var comment = _mapper.Map<Comment>(inputModel);
+            comment.User = user;
+            comment.TaskItem = task;
 
             await _unitOfWork.Comments.AddAsync(comment);
             await _unitOfWork.CommitAsync();
