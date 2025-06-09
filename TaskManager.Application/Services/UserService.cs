@@ -65,7 +65,7 @@ namespace TaskManager.Application.Services
         public async Task<bool> IsManagerAsync(Guid userId)
         {
             var user = await _unitOfWork.Users.GetByIdAsync(userId);
-            return user != null && user.Role == UserRole.Manager;
+            return user?.Role == UserRole.Manager;
         }
     }
 } 
