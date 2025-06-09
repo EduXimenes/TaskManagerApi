@@ -35,8 +35,9 @@ namespace TaskManager.Application.Services
         {
             var taskCount = await _unitOfWork.Tasks.CountByProjectIdAsync(inputModel.ProjectId);
             if (taskCount >= 20)
+            {
                 throw new InvalidOperationException("Limite de 20 tarefas por projeto atingido.");
-
+            }
             var task = _mapper.Map<TaskItem>(inputModel);
             await _unitOfWork.Tasks.AddAsync(task);
 
@@ -60,8 +61,9 @@ namespace TaskManager.Application.Services
         {
             var task = await _unitOfWork.Tasks.GetByIdWithDetailsAsync(id);
             if (task == null)
+            {
                 throw new KeyNotFoundException($"Tarefa com id {id} não encontrada.");
-
+            }
             var oldStatus = task.Status;
             var changes = new Dictionary<string, (object? oldValue, object? newValue)>();
 
@@ -128,14 +130,17 @@ namespace TaskManager.Application.Services
         private string FormatChangeDescription(string propertyName, object? oldValue, object? newValue)
         {
             if (oldValue == null)
+            {
                 return $"{propertyName}: {newValue}";
-
+            }
             if (oldValue is DateTime oldDate && newValue is DateTime newDate)
+            {
                 return $"{propertyName} alterado de {oldDate:dd/MM/yyyy} para {newDate:dd/MM/yyyy}";
-
+            }
             if (oldValue is TaskStatusEnum oldStatus && newValue is TaskStatusEnum newStatus)
+            {
                 return $"{propertyName} alterado de {oldStatus} para {newStatus}";
-
+            }
             return $"{propertyName} alterado de '{oldValue}' para '{newValue}'";
         }
 
@@ -143,8 +148,9 @@ namespace TaskManager.Application.Services
         {
             var task = await _unitOfWork.Tasks.GetByIdAsync(id);
             if (task == null)
+            {
                 throw new KeyNotFoundException($"Tarefa com id {id} não encontrada.");
-
+            }
             await _unitOfWork.Tasks.DeleteAsync(id);
             await _unitOfWork.CommitAsync();
         }

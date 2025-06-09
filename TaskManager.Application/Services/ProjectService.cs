@@ -45,8 +45,9 @@ namespace TaskManager.Application.Services
         {
             var project = await _unitOfWork.Projects.GetByIdAsync(id);
             if (project == null)
+            {
                 throw new KeyNotFoundException($"Projeto com id {id} não encontrado.");
-
+            }
             _mapper.Map(inputModel, project);
             await _unitOfWork.Projects.UpdateAsync(project);
             await _unitOfWork.CommitAsync();
@@ -56,14 +57,16 @@ namespace TaskManager.Application.Services
         {
             var project = await _unitOfWork.Projects.GetByIdAsync(id);
             if (project == null)
+            {
                 throw new KeyNotFoundException($"Projeto com id {id} não encontrado.");
-
+            }
             var hasIncompleteTasks = await _unitOfWork.Tasks.AnyAsync(
                 t => t.ProjectId == id && t.Status != TaskStatusEnum.Completed);
 
             if (hasIncompleteTasks)
+            {
                 throw new InvalidOperationException("Não é possível excluir o projeto com tarefas pendentes ou em andamento.");
-
+            }
             await _unitOfWork.Projects.DeleteAsync(id);
             await _unitOfWork.CommitAsync();
         }

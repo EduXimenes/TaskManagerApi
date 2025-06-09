@@ -28,7 +28,9 @@ namespace TaskManager.Application.Services
         {
             var comment = await _unitOfWork.Comments.GetByIdWithDetailsAsync(id);
             if (comment == null)
+            {
                 throw new KeyNotFoundException($"Comment with ID {id} not found.");
+            }
 
             return _mapper.Map<CommentViewModel>(comment);
         }
@@ -37,12 +39,15 @@ namespace TaskManager.Application.Services
         {
             var task = await _unitOfWork.Tasks.GetByIdAsync(inputModel.TaskItemId);
             if (task == null)
+            {
                 throw new KeyNotFoundException($"Task with ID {inputModel.TaskItemId} not found.");
+            }
 
             var user = await _unitOfWork.Users.GetByIdAsync(inputModel.UserId);
             if (user == null)
+            {
                 throw new KeyNotFoundException($"User with ID {inputModel.UserId} not found.");
-
+            }
             var comment = _mapper.Map<Comment>(inputModel);
             comment.User = user;
             comment.TaskItem = task;
@@ -55,25 +60,27 @@ namespace TaskManager.Application.Services
 
         public async Task<CommentViewModel> UpdateAsync(Guid id, CreateCommentInputModel inputModel)
         {
-            var comment = await _unitOfWork.Comments.GetByIdAsync(id);
+            var comment = await _unitOfWork.Comments.GetByIdWithDetailsAsync(id);
             if (comment == null)
+            {
                 throw new KeyNotFoundException($"Comment with ID {id} not found.");
-
+            }
             _mapper.Map(inputModel, comment);
             comment.UpdatedAt = DateTime.UtcNow;
 
             await _unitOfWork.Comments.UpdateAsync(comment);
             await _unitOfWork.CommitAsync();
 
-            return await GetByIdAsync(comment.Id);
+            return _mapper.Map<CommentViewModel>(comment);
         }
 
         public async Task DeleteAsync(Guid id)
         {
             var comment = await _unitOfWork.Comments.GetByIdAsync(id);
             if (comment == null)
+            {
                 throw new KeyNotFoundException($"Comment with ID {id} not found.");
-
+            }
             await _unitOfWork.Comments.DeleteAsync(id);
             await _unitOfWork.CommitAsync();
         }

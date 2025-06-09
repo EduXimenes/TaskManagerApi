@@ -45,8 +45,9 @@ namespace TaskManager.Application.Services
         {
             var user = await _unitOfWork.Users.GetByIdAsync(id);
             if (user == null)
+            {
                 throw new KeyNotFoundException($"Usuário com id {id} não encontrado.");
-
+            }
             _mapper.Map(inputModel, user);
             await _unitOfWork.Users.UpdateAsync(user);
             await _unitOfWork.CommitAsync();
@@ -56,8 +57,9 @@ namespace TaskManager.Application.Services
         {
             var user = await _unitOfWork.Users.GetByIdAsync(id);
             if (user == null)
+            {
                 throw new KeyNotFoundException($"Usuário com id {id} não encontrado.");
-
+            }
             await _unitOfWork.Users.DeleteAsync(id);
             await _unitOfWork.CommitAsync();
         }

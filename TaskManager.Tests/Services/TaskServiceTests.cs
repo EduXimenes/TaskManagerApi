@@ -22,7 +22,6 @@ namespace TaskManager.Tests.Services
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             
             var config = new MapperConfiguration(cfg => {
-                cfg.AddProfile(new TaskItemProfile());
                 cfg.AddProfile(new MappingProfile());
             });
             _mapper = config.CreateMapper();
