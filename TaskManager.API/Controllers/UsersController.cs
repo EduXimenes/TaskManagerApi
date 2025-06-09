@@ -2,6 +2,7 @@
 using TaskManager.Domain.InputModels;
 using TaskManager.Domain.ViewModels;
 using TaskManager.Domain.Interfaces.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace TaskManager.API.Controllers;
 
@@ -54,14 +55,25 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Cria um novo usuário
-    /// Possíveis roles:
-    /// Default = 1
-    /// Manager = 2
     /// </summary>
     /// <param name="inputModel">Dados do usuário a ser criado</param>
     /// <returns>Usuário criado</returns>
     /// <response code="201">Usuário criado com sucesso</response>
     /// <response code="400">Dados inválidos</response>
+    /// <remarks>
+    /// Exemplo de requisição:
+    /// 
+    ///     POST /api/Users
+    ///     {
+    ///         "name": "João Silva",
+    ///         "email": "joao@email.com",
+    ///         "role": 1
+    ///     }
+    /// 
+    /// Valores possíveis para role:
+    /// * 1 - Default
+    /// * 2 - Manager
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(UserViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,6 +99,20 @@ public class UsersController : ControllerBase
     /// <response code="204">Usuário atualizado com sucesso</response>
     /// <response code="400">Dados inválidos</response>
     /// <response code="404">Usuário não encontrado</response>
+    /// <remarks>
+    /// Exemplo de requisição:
+    /// 
+    ///     PUT /api/Users/{id}
+    ///     {
+    ///         "name": "João Silva",
+    ///         "email": "joao@email.com",
+    ///         "role": 1
+    ///     }
+    /// 
+    /// Valores possíveis para role:
+    /// * 1 - Default
+    /// * 2 - Manager
+    /// </remarks>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

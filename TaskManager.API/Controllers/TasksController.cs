@@ -81,14 +81,32 @@ public class TasksController : ControllerBase
     }
 
     /// <summary>
-    /// Cria uma nova tarefa.
-    /// É necessário um projeto e um usuário para criar uma tarefa.
+    /// Cria uma nova tarefa
     /// </summary>
     /// <param name="inputModel">Dados da tarefa a ser criada</param>
     /// <returns>Tarefa criada</returns>
     /// <response code="201">Tarefa criada com sucesso</response>
     /// <response code="400">Dados inválidos</response>
     /// <response code="404">Projeto ou usuário não encontrado</response>
+    /// <remarks>
+    /// Exemplo de requisição:
+    /// 
+    ///     POST /api/Tasks
+    ///     {
+    ///         "title": "Implementar autenticação",
+    ///         "description": "Implementar autenticação JWT",
+    ///         "dueDate": "2024-03-20T00:00:00Z",
+    ///         "priority": 2,
+    ///         "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    ///         "projectId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    ///     }
+    /// 
+    /// Valores possíveis para priority:
+    /// * 1 - Low
+    /// * 2 - Medium
+    /// * 3 - High
+    /// * 4 - Urgent
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(TaskViewModel), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -112,16 +130,6 @@ public class TasksController : ControllerBase
 
     /// <summary>
     /// Atualiza uma tarefa existente
-    /// Possíveis status:
-    /// Pending = 1
-    /// InProgress = 2
-    /// Completed = 3
-    /// Cancelled = 4
-    /// Possíveis prioridades:
-    ///  Low = 1
-    ///  Medium = 2
-    ///  High = 3
-    ///  Urgent = 4
     /// </summary>
     /// <param name="id">ID da tarefa</param>
     /// <param name="inputModel">Dados atualizados da tarefa</param>
@@ -129,6 +137,29 @@ public class TasksController : ControllerBase
     /// <response code="204">Tarefa atualizada com sucesso</response>
     /// <response code="400">Dados inválidos</response>
     /// <response code="404">Tarefa não encontrada</response>
+    /// <remarks>
+    /// Exemplo de requisição:
+    /// 
+    ///     PUT /api/Tasks/{id}
+    ///     {
+    ///         "title": "Implementar autenticação",
+    ///         "description": "Implementar autenticação JWT",
+    ///         "status": 2,
+    ///         "priority": 2
+    ///     }
+    /// 
+    /// Valores possíveis para status:
+    /// * 1 - Pending
+    /// * 2 - InProgress
+    /// * 3 - Completed
+    /// * 4 - Cancelled
+    /// 
+    /// Valores possíveis para priority:
+    /// * 1 - Low
+    /// * 2 - Medium
+    /// * 3 - High
+    /// * 4 - Urgent
+    /// </remarks>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
