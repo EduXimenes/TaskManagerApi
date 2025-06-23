@@ -44,21 +44,3 @@ Relatório apresenta o desempenho médio de tarefas concluídas nos últimos 30 
 4. O Projeto foi configurado para rodar no Swagger para facilitar a visualização:
    http://localhost:7006/swagger/index.html
 5. É possível acessar as API's através do uso do Postman com seus respectivos endpoints.
-
-# Fase 2 - Refinamento
-
-### Questionamentos visando o refinamento para futuras implementações ou melhorias.
-
-- A aplicação está considerando os aumentos de número de usuários e projetos/tarefas ?
-- Existem preocupações com desempenho ?
-- Existem áreas da aplicação que o usuário considera dificil ou confuso de utilizar? Como entradas de dados ou respostas com dados excessivos.
-- Os relatórios gerados para gerentes estão atendendo as expectativas?
-- Seria interessante incluir mais dados neste relatório ou criar outros tipos de relatórios?
-
-# Fase 3 - Final
-
-### Melhorarias no projeto
-
-- Criar uma documentação abrangente para desenvolvedores, usuários e administradores do sistema, incluindo guias de uso.
-- Para melhoria do projeto seria interessante adicionar recursos robustos de monitoramento e logging para acompanhar o desempenho do aplicativo, identificar problemas rapidamente e tomar medidas direcionadas para melhorias.
-- Avaliar melhorias futuras na modularização da aplicação, como a separação de contextos ou serviços, caso o sistema cresça em escopo, visando melhor manutenção, performance e escalabilidade.
